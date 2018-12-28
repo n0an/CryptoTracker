@@ -9,8 +9,13 @@
 import UIKit
 import Alamofire
 
-class CoinData {
-    static let shared = CoinData()
+@objc protocol CoinDataDelegate: AnyObject {
+    @objc optional func newPrices()
+    @objc optional func newHistoricalPrices()
+}
+
+class CoinsData {
+    static let shared = CoinsData()
     var coins = [Coin]()
     weak var delegate: CoinDataDelegate?
     
@@ -35,7 +40,6 @@ class CoinData {
         
         Alamofire.request("https://min-api.cryptocompare.com/data/pricemulti?fsyms=\(symbolsString)&tsyms=USD").responseJSON { (response) in
             
-            
             if let json = response.result.value as? [String: Any] {
                 for coin in self.coins {
                     if let coinJSON = json[coin.symbol] as? [String: Double] {
@@ -47,39 +51,15 @@ class CoinData {
                 
                 self.delegate?.newPrices?()
             }
-            
-            
         }
     }
-}
-
-@objc protocol CoinDataDelegate: AnyObject {
-    @objc optional func newPrices()
-}
-
-class Coin {
-    let symbol: String
-    let image: UIImage?
-    var price = 0.0
-    var amount = 0.0
     
-    var historicalData = [Double]()
-    
-    init(symbol: String) {
-        self.symbol = symbol
-        self.image = UIImage(named: symbol)
-    }
-    
-    func priceAsString() -> String {
-        if price == 0.0 {
-            return "Loading"
-        }
-        
+    func doubleToMoneyString(_ double: Double) -> String {
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: "en_US")
         formatter.numberStyle = .currency
         
-        
-        return formatter.string(from: NSNumber.init(value: price)) ?? "ERR"
+        return formatter.string(from: NSNumber.init(value: double)) ?? "ERR"
     }
 }
+

@@ -6,6 +6,7 @@ target 'CryptoTracker' do
   use_frameworks!
 
   # Pods for CryptoTracker
-  pod 'Alamofire', '4.7.2'  
-
+  pod 'Alamofire', '4.7.2'
+#  pod 'SwiftChart', '1.0.1'
+  pod 'SwiftChart'
 end

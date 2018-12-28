@@ -12,26 +12,30 @@ class CryptoTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .green
-        CoinData.shared.delegate = self
-
-        CoinData.shared.getPrices()
+        CoinsData.shared.delegate = self
+        CoinsData.shared.getPrices()
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return CoinData.shared.coins.count
+        return CoinsData.shared.coins.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let coin = CoinData.shared.coins[indexPath.row]
+        let coin = CoinsData.shared.coins[indexPath.row]
         
         let cell = UITableViewCell()
         cell.textLabel?.text = "\(coin.symbol) - \(coin.priceAsString())"
         cell.imageView?.image = coin.image
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let coinVC = CoinViewController()
+        coinVC.coin = CoinsData.shared.coins[indexPath.row]
+        
+        navigationController?.pushViewController(coinVC, animated: true)
     }
 }
 
