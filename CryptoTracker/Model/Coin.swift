@@ -30,6 +30,10 @@ class Coin {
         return CoinsData.shared.doubleToMoneyString(price)
     }
     
+    func amountAsString() -> String {
+        return CoinsData.shared.doubleToMoneyString(amount * price)
+    }
+    
     func getHistoricalData() {
         Alamofire.request("https://min-api.cryptocompare.com/data/histoday?fsym=\(symbol)&tsym=USD&limit=30").responseJSON { (response) in
             

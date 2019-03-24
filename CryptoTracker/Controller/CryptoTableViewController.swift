@@ -9,6 +9,12 @@
 import UIKit
 
 class CryptoTableViewController: UITableViewController {
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        CoinsData.shared.delegate = self
+        tableView.reloadData()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
