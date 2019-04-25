@@ -28,6 +28,16 @@ class CoinsData {
         }
     }
     
+    func netWorthAsString() -> String {
+        var netWorth = 0.0
+        
+        for coin in coins {
+            netWorth += coin.amount * coin.price
+        }
+        
+        return doubleToMoneyString(netWorth)
+    }
+    
     func getPrices() {
         
         let symbolsArray = coins.map { (c) -> String in
