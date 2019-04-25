@@ -9,12 +9,14 @@
 import UIKit
 import SwiftChart
 
-private let chartHeight: CGFloat = 300
-private let imageSize: CGFloat = 100
-private let priceLabelHeight: CGFloat = 25
+// MARK: - CONSTANTS
+private let chartHeight: CGFloat        = 300
+private let imageSize: CGFloat          = 100
+private let priceLabelHeight: CGFloat   = 25
 
 class CoinViewController: UIViewController {
     
+    // MARK: - PROPERTIES
     var coin: Coin!
     var chart = Chart()
     
@@ -22,7 +24,7 @@ class CoinViewController: UIViewController {
     var youOwnLabel = UILabel()
     var worthLabel = UILabel()
     
-
+    // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -67,13 +69,14 @@ class CoinViewController: UIViewController {
         newPrices()
     }
     
+    // MARK: - HELPER METHODS
     func newPrices() {
         priceLabel.text = coin.priceAsString()
         worthLabel.text = coin.amountAsString()
         youOwnLabel.text = "You own: \(coin.amount) \(coin.symbol)"
-
     }
     
+    // MARK: - ACTIONS
     @objc func editTapped() {
         let alert = UIAlertController(title: "How much \(coin.symbol) do you own?", message: "Specify amount", preferredStyle: .alert)
         alert.addTextField { (textField) in
@@ -98,12 +101,11 @@ class CoinViewController: UIViewController {
     }
 }
 
-extension CoinViewController: CoinDataDelegate {
+// MARK: - CoinDataDelegate
+extension CoinViewController: CoinsDataDelegate {
     func newHistoricalPrices() {
-        
         let series = ChartSeries(coin.historicalData)
         series.area = true
         chart.add(series)
-        
     }
 }

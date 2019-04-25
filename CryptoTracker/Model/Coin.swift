@@ -7,16 +7,17 @@
 //
 
 import UIKit
-import Alamofire
 
 class Coin {
+    
+    // MARK: - PROPERTIES
     let symbol: String
     let image: UIImage?
     var price = 0.0
     var amount = 0.0
-    
     var historicalData = [Double]()
     
+    // MARK: - INIT
     init(symbol: String) {
         self.symbol = symbol
         self.image = UIImage(named: symbol)
@@ -28,6 +29,7 @@ class Coin {
         }
     }
     
+    // MARK: - HELPER METHODS
     func priceAsString() -> String {
         if price == 0.0 {
             return "Loading"
@@ -41,20 +43,18 @@ class Coin {
     }
     
     func getHistoricalData() {
-        Alamofire.request("https://min-api.cryptocompare.com/data/histoday?fsym=\(symbol)&tsym=USD&limit=30").responseJSON { (response) in
-            
-            if let json = response.result.value as? [String: Any] {
-                if let pricesJson = json["Data"] as? [[String: Double]] {
-                    self.historicalData = []
-                    for priceJson in pricesJson {
-                        if let closePrice = priceJson["close"] {
-                            self.historicalData.append(Double(closePrice) )
-                        }
+        
+        CoinsData.shared.getHistoricalData(for: self) { (json) in
+            if let pricesJson = json["Data"] as? [[String: Double]] {
+                self.historicalData = []
+                for priceJson in pricesJson {
+                    if let closePrice = priceJson["close"] {
+                        self.historicalData.append(Double(closePrice) )
                     }
-                    
-                    CoinsData.shared.delegate?.newHistoricalPrices?()
-                    UserDefaults.standard.set(self.historicalData, forKey: self.symbol + "history")
                 }
+                
+                CoinsData.shared.delegate?.newHistoricalPrices?()
+                UserDefaults.standard.set(self.historicalData, forKey: self.symbol + "history")
             }
         }
     }

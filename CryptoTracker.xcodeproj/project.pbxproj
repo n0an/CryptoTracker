@@ -67,10 +67,10 @@
 		153724FF21CF9E32009818D2 /* CryptoTracker */ = {
 			isa = PBXGroup;
 			children = (
+				1537250021CF9E32009818D2 /* AppDelegate.swift */,
 				159E2DFB21D6876A004546B0 /* Model */,
 				159E2DFD21D68781004546B0 /* Singletons */,
 				159E2DFC21D68776004546B0 /* Controller */,
-				1537250021CF9E32009818D2 /* AppDelegate.swift */,
 				1537250721CF9E34009818D2 /* Assets.xcassets */,
 				1537250921CF9E34009818D2 /* LaunchScreen.storyboard */,
 				1537250C21CF9E34009818D2 /* Info.plist */,

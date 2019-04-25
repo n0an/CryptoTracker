@@ -9,71 +9,27 @@
 import UIKit
 import LocalAuthentication
 
-private let headerHeight: CGFloat = 100.0
+// MARK: - CONSTANTS
+private let headerHeight: CGFloat   = 100.0
 private let netWorthHeight: CGFloat = 45.0
 
 class CryptoTableViewController: UITableViewController {
     
+    // MARK: - PROPERTIES
     var amountLabel = UILabel()
     
+    // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         CoinsData.shared.delegate = self
         
-        CoinsData.shared.getPrices()
+        CoinsData.shared.getPricesForAllCoins()
         
         if LAContext().canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) {
             updateSecureButton()
         }
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Report", style: .plain, target: self, action: #selector(reportTapped))
-    }
-    
-    @objc func reportTapped() {
-        let formatter = UIMarkupTextPrintFormatter(markupText: CoinsData.shared.html())
-        let render = UIPrintPageRenderer()
-        
-        render.addPrintFormatter(formatter, startingAtPageAt: 0)
-        
-        let page = CGRect(x: 0, y: 0, width: 595.2, height: 814.8)
-        
-        render.setValue(page, forKey: "paperRect")
-        render.setValue(page, forKey: "printableRect")
-        
-        let pdfData = NSMutableData()
-        
-        UIGraphicsBeginPDFContextToData(pdfData, .zero, nil)
-        
-        for i in 0 ..< render.numberOfPages {
-            UIGraphicsBeginPDFPage()
-            render.drawPage(at: i, in: UIGraphicsGetPDFContextBounds())
-        }
-        
-        UIGraphicsEndPDFContext()
-        
-        let shareVC = UIActivityViewController(activityItems: [pdfData], applicationActivities: nil)
-        present(shareVC, animated: true)
-        
-    }
-    
-    func updateSecureButton() {
-        var title: String
-        if UserDefaults.standard.bool(forKey: "secure") == true {
-            title = "Unsecure App"
-        } else {
-            title = "Secure App"
-        }
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(secureTapped))
-    }
-    
-    @objc func secureTapped(button: UIButton) {
-        if UserDefaults.standard.bool(forKey: "secure") == true {
-            UserDefaults.standard.set(false, forKey: "secure")
-        } else {
-            UserDefaults.standard.set(true, forKey: "secure")
-        }
-        updateSecureButton()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -83,12 +39,16 @@ class CryptoTableViewController: UITableViewController {
         displayNetWorth()
     }
     
-    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return headerHeight
-    }
-    
-    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return createHeaderView()
+    // MARK: - HELPER METHODS
+    func updateSecureButton() {
+        var title: String
+        if UserDefaults.standard.bool(forKey: "secure") == true {
+            title = "Unsecure App"
+        } else {
+            title = "Secure App"
+        }
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(secureTapped))
     }
     
     func createHeaderView() -> UIView {
@@ -117,6 +77,53 @@ class CryptoTableViewController: UITableViewController {
         amountLabel.text = CoinsData.shared.netWorthAsString()
     }
     
+    // MARK: - ACTIONS
+    @objc func reportTapped() {
+        let formatter = UIMarkupTextPrintFormatter(markupText: CoinsData.shared.html())
+        let render = UIPrintPageRenderer()
+        
+        render.addPrintFormatter(formatter, startingAtPageAt: 0)
+        
+        let page = CGRect(x: 0, y: 0, width: 595.2, height: 814.8)
+        
+        render.setValue(page, forKey: "paperRect")
+        render.setValue(page, forKey: "printableRect")
+        
+        let pdfData = NSMutableData()
+        
+        UIGraphicsBeginPDFContextToData(pdfData, .zero, nil)
+        
+        for i in 0 ..< render.numberOfPages {
+            UIGraphicsBeginPDFPage()
+            render.drawPage(at: i, in: UIGraphicsGetPDFContextBounds())
+        }
+        
+        UIGraphicsEndPDFContext()
+        
+        let shareVC = UIActivityViewController(activityItems: [pdfData], applicationActivities: nil)
+        present(shareVC, animated: true)
+        
+    }
+    
+    @objc func secureTapped(button: UIButton) {
+        if UserDefaults.standard.bool(forKey: "secure") == true {
+            UserDefaults.standard.set(false, forKey: "secure")
+        } else {
+            UserDefaults.standard.set(true, forKey: "secure")
+        }
+        updateSecureButton()
+    }
+    
+    // MARK: - UITableView Configuration
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return headerHeight
+    }
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return createHeaderView()
+    }
+    
+    // MARK: - UITableViewDataSource
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return CoinsData.shared.coins.count
     }
@@ -138,6 +145,7 @@ class CryptoTableViewController: UITableViewController {
         return cell
     }
     
+    // MARK: - UITableViewDelegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let coinVC = CoinViewController()
         coinVC.coin = CoinsData.shared.coins[indexPath.row]
@@ -146,8 +154,8 @@ class CryptoTableViewController: UITableViewController {
     }
 }
 
-extension CryptoTableViewController: CoinDataDelegate {
-
+// MARK: - CoinDataDelegate
+extension CryptoTableViewController: CoinsDataDelegate {
     func newPrices() {
         tableView.reloadData()
         displayNetWorth()

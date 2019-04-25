@@ -9,16 +9,20 @@
 import UIKit
 import Alamofire
 
-@objc protocol CoinDataDelegate: AnyObject {
+// MARK: - CoinDataDelegate Protocol
+@objc protocol CoinsDataDelegate: AnyObject {
     @objc optional func newPrices()
     @objc optional func newHistoricalPrices()
 }
 
 class CoinsData {
+    
+    // MARK: - PROPERTIES
     static let shared = CoinsData()
     var coins = [Coin]()
-    weak var delegate: CoinDataDelegate?
+    weak var delegate: CoinsDataDelegate?
     
+    // MARK: - INIT
     private init() {
         let symbols = ["BTC", "ETH", "LTC"]
         
@@ -28,17 +32,8 @@ class CoinsData {
         }
     }
     
-    func netWorthAsString() -> String {
-        var netWorth = 0.0
-        
-        for coin in coins {
-            netWorth += coin.amount * coin.price
-        }
-        
-        return doubleToMoneyString(netWorth)
-    }
-    
-    func getPrices() {
+    // MARK: - SERVER API METHODS
+    func getPricesForAllCoins() {
         
         let symbolsArray = coins.map { (c) -> String in
             return c.symbol
@@ -46,10 +41,8 @@ class CoinsData {
         
         let symbolsString = symbolsArray.joined(separator: ",")
         
-        print(symbolsString)
-        
         Alamofire.request("https://min-api.cryptocompare.com/data/pricemulti?fsyms=\(symbolsString)&tsyms=USD").responseJSON { (response) in
-            
+
             if let json = response.result.value as? [String: Any] {
                 for coin in self.coins {
                     if let coinJSON = json[coin.symbol] as? [String: Double] {
@@ -59,10 +52,32 @@ class CoinsData {
                         }
                     }
                 }
-                
+
                 self.delegate?.newPrices?()
             }
         }
+    }
+    
+    func getHistoricalData(for coin: Coin, completion: @escaping ([String: Any]) -> ()) {
+        Alamofire.request("https://min-api.cryptocompare.com/data/histoday?fsym=\(coin.symbol)&tsym=USD&limit=30").responseJSON { (response) in
+            
+            
+            if let json = response.result.value as? [String: Any] {
+                
+                completion(json)
+            }
+        }
+    }
+    
+    // MARK: - HELPER METHODS
+    func netWorthAsString() -> String {
+        var netWorth = 0.0
+        
+        for coin in coins {
+            netWorth += coin.amount * coin.price
+        }
+        
+        return doubleToMoneyString(netWorth)
     }
     
     func doubleToMoneyString(_ double: Double) -> String {

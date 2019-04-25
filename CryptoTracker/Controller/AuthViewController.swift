@@ -11,13 +11,14 @@ import LocalAuthentication
 
 class AuthViewController: UIViewController {
 
+    // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         
         presentAuth()
     }
     
+    // MARK: - HELPER METHODS
     func presentAuth() {
         LAContext().evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Biometrics protection") { (success, err) in
             if let err = err {
@@ -34,7 +35,6 @@ class AuthViewController: UIViewController {
                     if let window = UIApplication.shared.keyWindow {
                         
                         window.rootViewController = navController
-                        
                     }
                     
                 }
@@ -43,6 +43,4 @@ class AuthViewController: UIViewController {
             }
         }
     }
-    
-
 }
