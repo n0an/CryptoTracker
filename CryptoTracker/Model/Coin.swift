@@ -20,6 +20,12 @@ class Coin {
     init(symbol: String) {
         self.symbol = symbol
         self.image = UIImage(named: symbol)
+        self.price = UserDefaults.standard.double(forKey: self.symbol)
+        self.amount = UserDefaults.standard.double(forKey: self.symbol + "amount")
+
+        if let history = UserDefaults.standard.array(forKey: self.symbol + "history") as? [Double] {
+            self.historicalData = history
+        }
     }
     
     func priceAsString() -> String {
@@ -42,11 +48,12 @@ class Coin {
                     self.historicalData = []
                     for priceJson in pricesJson {
                         if let closePrice = priceJson["close"] {
-                            self.historicalData.append(Double(closePrice) ?? 0.0)
+                            self.historicalData.append(Double(closePrice) )
                         }
                     }
                     
                     CoinsData.shared.delegate?.newHistoricalPrices?()
+                    UserDefaults.standard.set(self.historicalData, forKey: self.symbol + "history")
                 }
             }
         }

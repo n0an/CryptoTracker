@@ -55,6 +55,7 @@ class CoinsData {
                     if let coinJSON = json[coin.symbol] as? [String: Double] {
                         if let price = coinJSON["USD"] {
                             coin.price = price
+                            UserDefaults.standard.set(price, forKey: coin.symbol)
                         }
                     }
                 }
