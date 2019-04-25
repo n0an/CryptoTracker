@@ -90,7 +90,7 @@ class CoinViewController: UIViewController {
         }
         
         alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (_) in
-            if let text = alert.textFields?.first?.text, let amount = Double(text) {
+            if let text = alert.textFields?.first?.text?.replacingOccurrences(of: ",", with: "."), let amount = Double(text) {
                 self.coin.amount = amount
                 UserDefaults.standard.set(amount, forKey: self.coin.symbol + "amount")
                 self.newPrices()
