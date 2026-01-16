@@ -121,7 +121,7 @@ struct CoinRowView: View {
             Spacer()
 
             if coin.amount != 0 {
-                Text("\(coin.amount, specifier: "%.4f")")
+                Text(coin.amount.formatted(.number.precision(.fractionLength(0...4))))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

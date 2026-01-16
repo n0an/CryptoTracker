@@ -86,7 +86,7 @@ struct CoinDetailView: View {
                 Text(coin.priceString)
                     .font(.title2)
 
-                Text("You own: \(coin.amount, specifier: "%.4f") \(coin.symbol)")
+                Text("You own: \(coin.amount.formatted(.number.precision(.fractionLength(0...4)))) \(coin.symbol)")
                     .font(.title3)
                     .fontWeight(.bold)
 
