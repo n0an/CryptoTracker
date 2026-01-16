@@ -2,60 +2,71 @@
 //  Coin.swift
 //  CryptoTracker
 //
-//  Created by nag on 28/12/2018.
-//  Copyright © 2018 Anton Novoselov. All rights reserved.
+//  Copyright © 2026 Anton Novoselov. All rights reserved.
 //
 
+import SwiftUI
 import UIKit
 
-class Coin {
-    
-    // MARK: - PROPERTIES
+@Observable
+final class Coin: Identifiable {
+    let id: String
     let symbol: String
-    let image: UIImage?
-    var price = 0.0
-    var amount = 0.0
-    var historicalData = [Double]()
-    
-    // MARK: - INIT
-    init(symbol: String) {
-        self.symbol = symbol
-        self.image = UIImage(named: symbol)
-        self.price = UserDefaults.standard.double(forKey: self.symbol)
-        self.amount = UserDefaults.standard.double(forKey: self.symbol + "amount")
+    let image: Image?
+    var price: Double = 0.0
+    var amount: Double = 0.0
+    var historicalData: [Double] = []
 
-        if let history = UserDefaults.standard.array(forKey: self.symbol + "history") as? [Double] {
+    init(symbol: String) {
+        self.id = symbol
+        self.symbol = symbol
+
+        if let uiImage = UIImage(named: symbol) {
+            self.image = Image(uiImage: uiImage)
+        } else {
+            self.image = nil
+        }
+
+        self.price = UserDefaults.standard.double(forKey: symbol)
+        self.amount = UserDefaults.standard.double(forKey: symbol + "amount")
+
+        if let history = UserDefaults.standard.array(forKey: symbol + "history") as? [Double] {
             self.historicalData = history
         }
     }
-    
-    // MARK: - HELPER METHODS
-    func priceAsString() -> String {
+
+    var priceString: String {
         if price == 0.0 {
-            return "Loading"
+            return "Loading..."
         }
-        
-        return CoinsData.shared.doubleToMoneyString(price)
+        return price.asCurrency
     }
-    
-    func amountAsString() -> String {
-        return CoinsData.shared.doubleToMoneyString(amount * price)
+
+    var amountValueString: String {
+        return (amount * price).asCurrency
     }
-    
-    func getHistoricalData() {
-        
-        CoinsData.shared.getHistoricalData(for: self) { (json) in
-            if let pricesJson = json["Data"] as? [[String: Double]] {
-                self.historicalData = []
-                for priceJson in pricesJson {
-                    if let closePrice = priceJson["close"] {
-                        self.historicalData.append(Double(closePrice) )
-                    }
-                }
-                
-                CoinsData.shared.delegate?.newHistoricalPrices?()
-                UserDefaults.standard.set(self.historicalData, forKey: self.symbol + "history")
-            }
-        }
+
+    func saveAmount(_ newAmount: Double) {
+        amount = newAmount
+        UserDefaults.standard.set(newAmount, forKey: symbol + "amount")
+    }
+
+    func savePrice(_ newPrice: Double) {
+        price = newPrice
+        UserDefaults.standard.set(newPrice, forKey: symbol)
+    }
+
+    func saveHistoricalData(_ data: [Double]) {
+        historicalData = data
+        UserDefaults.standard.set(data, forKey: symbol + "history")
+    }
+}
+
+extension Double {
+    var asCurrency: String {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.numberStyle = .currency
+        return formatter.string(from: NSNumber(value: self)) ?? "$0.00"
     }
 }
